@@ -108,6 +108,10 @@ Item {
                 easing.bezierCurve: Appearance.anim.curves.standard
             }
         }
+
+        Ref {
+            service: Cava
+        }
     }
 
     StyledClippingRect {

@@ -11,6 +11,10 @@ RowLayout {
 
     spacing: Appearance.spacing.large * 3
 
+    Ref {
+        service: SystemUsage
+    }
+
     Resource {
         Layout.alignment: Qt.AlignVCenter
         Layout.topMargin: root.padding
