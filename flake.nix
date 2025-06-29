@@ -35,6 +35,7 @@
           ddcutil
           fishMinimal
           grim
+          inotify-tools
           libqalculate
           lm_sensors
           material-symbols
