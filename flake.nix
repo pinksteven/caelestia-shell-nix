@@ -41,6 +41,7 @@
           networkmanager
           pipewire
           power-profiles-daemon
+          procps
           kdePackages.qtdeclarative
           quickshell.packages.${system}.default
           swappy
