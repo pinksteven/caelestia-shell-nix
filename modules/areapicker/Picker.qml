@@ -36,7 +36,7 @@ MouseArea {
     property real sw: Math.abs(sx - ex)
     property real sh: Math.abs(sy - ey)
 
-    property list<var> clients: Hyprland.toplevels.values.filter(c => c.workspace.id === Hyprland.activeWsId).sort((a, b) => {
+    property list<var> clients: Hyprland.toplevels.values.filter(c => c.workspace?.id === Hyprland.activeWsId).sort((a, b) => {
         // Pinned first, then floating, then any other
         if (a.lastIpcObject.pinned === b.lastIpcObject.pinned)
             return a.lastIpcObject.floating === b.lastIpcObject.floating ? 0 : a.lastIpcObject.floating ? -1 : 1;

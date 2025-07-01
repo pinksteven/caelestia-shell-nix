@@ -45,7 +45,6 @@ Dependencies:
 -   [`networkmanager`](https://networkmanager.dev)
 -   [`lm-sensors`](https://github.com/lm-sensors/lm-sensors)
 -   [`fish`](https://github.com/fish-shell/fish-shell)
--   [`curl`](https://github.com/curl/curl)
 -   [`aubio`](https://github.com/aubio/aubio)
 -   [`libpipewire`](https://pipewire.org)
 -   `glibc`
