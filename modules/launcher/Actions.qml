@@ -45,6 +45,7 @@ Singleton {
             name: qsTr("Variant")
             desc: qsTr("Change the current scheme variant")
             icon: "colors"
+            disabled: !Config.background.enabled
 
             function onClicked(list: AppList): void {
                 root.autocomplete(list, "variant");
@@ -64,6 +65,7 @@ Singleton {
             name: qsTr("Light")
             desc: qsTr("Change the scheme to light mode")
             icon: "light_mode"
+            disabled: !Config.background.enabled
 
             function onClicked(list: AppList): void {
                 list.visibilities.launcher = false;
@@ -74,6 +76,7 @@ Singleton {
             name: qsTr("Dark")
             desc: qsTr("Change the scheme to dark mode")
             icon: "dark_mode"
+            disabled: !Config.background.enabled
 
             function onClicked(list: AppList): void {
                 list.visibilities.launcher = false;
