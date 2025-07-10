@@ -60,7 +60,7 @@
             pkgs.stdenv.mkDerivation {
               pname = "caelestia-shell";
               src = ./.;
-              version = self.shortRev or "dirty";
+              version = "0.1.0+git.${self.shortRev or "dirty"}";
 
               nativeBuildInputs = with pkgs; [
                 gcc
@@ -132,7 +132,7 @@
             pkgs.python3Packages.buildPythonPackage {
               pname = "caelestia-cli";
               src = caelestia-cli;
-              version = self.shortRev or "000000";
+              version = "0.0.1+git.${caelestia-cli.shortRev or "dirty"}";
               pyproject = true;
 
               build-system = with pkgs.python3Packages; [
