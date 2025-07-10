@@ -21,7 +21,7 @@ Singleton {
     property alias areapicker: adapter.areapicker
 
     FileView {
-        path: `${Paths.config}/shell.json`
+        path: `${Paths.stringify(Paths.config)}/shell.json`
         watchChanges: true
         onFileChanged: reload()
         onAdapterUpdated: writeAdapter()
