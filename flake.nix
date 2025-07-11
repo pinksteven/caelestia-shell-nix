@@ -1,5 +1,5 @@
 {
-  description = "Caelstia Shell Packaged as flake with a homemanager module and stylix compatibility";
+  description = "Caelstia Shell Packaged as flake";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -9,8 +9,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     caelestia-cli = {
-      url = "github:caelestia-dots/cli";
-      flake = false;
+      url = "github:pinksteven/caelestia-cli";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -122,53 +122,11 @@
                 --prefix FONTCONFIG_PATH : ${pkgs.fontconfig.out}/etc/fonts
               '';
             };
-          cli =
-            let
-              deps = with pkgs; [
-                libnotify
-                swappy
-                grim
-                dart-sass
-                app2unit
-                wl-clipboard
-                slurp
-                wl-screenrec
-                libpulseaudio
-                cliphist
-                fuzzel
-                killall
-                python3Packages.hatch-vcs
-                python3Packages.pillow
-                python3Packages.materialyoucolor
-              ];
-            in
-            pkgs.python3Packages.buildPythonPackage {
-              pname = "caelestia-cli";
-              src = caelestia-cli;
-              version = "0.0.1+git.${caelestia-cli.shortRev or "dirty"}";
-              pyproject = true;
-
-              build-system = with pkgs.python3Packages; [
-                hatchling
-              ];
-
-              # patchPhase = ''
-              #   chmod +w src/caelestia/utils/version.py
-              #   chmod +w src/caelestia/subcommands/shell.py
-              #   chmod +w src/caelestia/subcommands/screenshot.py
-              #   substituteInPlace src/caelestia/utils/version.py --replace-quiet "qs" "caelestia-shell";
-              #   substituteInPlace src/caelestia/subcommands/shell.py --replace-quiet "\"qs\", \"-n\", \"-c\", \"caelestia\"" "\"caelestia-shell\", \"-n\"";
-              #   substituteInPlace src/caelestia/subcommands/shell.py --replace-quiet "\"qs\", \"-c\", \"caelestia\"" "\"caelestia-shell\"";
-              #   substituteInPlace src/caelestia/subcommands/screenshot.py --replace-quiet "\"qs\", \"-c\", \"caelestia\"" "\"caelestia-shell\"";
-              # '';
-
-              dependencies = deps;
-            };
           default = pkgs.buildEnv {
             name = "caelestia";
             paths = [
               self.packages.${system}.shell
-              self.packages.${system}.cli
+              caelestia-cli.packages.${system}.default
             ];
           };
         };
