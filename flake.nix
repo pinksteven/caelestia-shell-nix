@@ -29,6 +29,7 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+        qs = quickshell.packages.${system}.default;
       in
       {
         packages = {
@@ -53,22 +54,22 @@
                 power-profiles-daemon
                 procps
                 kdePackages.qtdeclarative
-                quickshell.packages.${system}.default
+                qs
                 swappy
               ];
             in
             pkgs.stdenv.mkDerivation {
               pname = "caelestia-shell";
               src = ./.;
-              version = "0.1.0+git.${self.shortRev or "dirty"}";
+              version = "0.0.1+git.${self.shortRev or "dirty"}";
 
               nativeBuildInputs = with pkgs; [
                 gcc
                 makeWrapper
+                qt6.wrapQtAppsHook
               ];
 
-              buildInputs = deps;
-              dontWrapQtApps = true;
+              propagatedBuildInputs = deps;
 
               buildPhase = ''
                 runHook preBuild
@@ -89,22 +90,34 @@
                 runHook preInstall
 
                 mkdir -p $out/bin
-                mkdir -p $out/share/quickshell
+                mkdir -p $out/share/quickshell/caelestia
                 mkdir -p $out/share/fonts
 
-                cp -r assets config modules services utils widgets $out/share/quickshell/
+                cp -r assets config modules services utils widgets $out/share/quickshell/caelestia/
                 cp -r ${pkgs.material-symbols}/share/fonts/* $out/share/fonts/
-                cp shell.qml $out/share/quickshell/
+                cp shell.qml $out/share/quickshell/caelestia/
                 cp bin/beat_detector $out/bin/
 
                 runHook postInstall
               '';
 
+              patchPhase = ''
+                substituteInPlace shell.qml \
+                  --replace-fail "//@ pragma Env QS_NO_RELOAD_POPUP=1" "
+                  //@ pragma Env QS_NO_RELOAD_POPUP=1
+                  //@ pragma UseQApplication
+                  "
+
+                substituteInPlace run.fish \
+                  --replace-fail "(dirname (status filename))" "$out/share/quickshell/caelestia"
+              '';
+
               postFixup = ''
-                makeWrapper ${quickshell.packages.${system}.default}/bin/qs $out/bin/caelestia-shell \
-                --add-flags "-p $out/share/quickshell" \
+                makeWrapper ${qs}/bin/qs $out/bin/qs \
+                --unset QT_STYLE_OVERRIDE \
                 --set QT_QUICK_CONTROLS_STYLE Basic \
                 --set CAELESTIA_BD_PATH "$out/bin/beat_detector" \
+                --prefix XDG_CONFIG_DIRS : $out/share \
                 --prefix PATH : ${pkgs.lib.makeBinPath deps} \
                 --prefix FONTCONFIG_PATH : ${pkgs.fontconfig.out}/etc/fonts
               '';
@@ -139,15 +152,15 @@
                 hatchling
               ];
 
-              patchPhase = ''
-                chmod +w src/caelestia/utils/version.py
-                chmod +w src/caelestia/subcommands/shell.py
-                chmod +w src/caelestia/subcommands/screenshot.py
-                substituteInPlace src/caelestia/utils/version.py --replace-quiet "qs" "caelestia-shell";
-                substituteInPlace src/caelestia/subcommands/shell.py --replace-quiet "\"qs\", \"-n\", \"-c\", \"caelestia\"" "\"caelestia-shell\", \"-n\"";
-                substituteInPlace src/caelestia/subcommands/shell.py --replace-quiet "\"qs\", \"-c\", \"caelestia\"" "\"caelestia-shell\"";
-                substituteInPlace src/caelestia/subcommands/screenshot.py --replace-quiet "\"qs\", \"-c\", \"caelestia\"" "\"caelestia-shell\"";
-              '';
+              # patchPhase = ''
+              #   chmod +w src/caelestia/utils/version.py
+              #   chmod +w src/caelestia/subcommands/shell.py
+              #   chmod +w src/caelestia/subcommands/screenshot.py
+              #   substituteInPlace src/caelestia/utils/version.py --replace-quiet "qs" "caelestia-shell";
+              #   substituteInPlace src/caelestia/subcommands/shell.py --replace-quiet "\"qs\", \"-n\", \"-c\", \"caelestia\"" "\"caelestia-shell\", \"-n\"";
+              #   substituteInPlace src/caelestia/subcommands/shell.py --replace-quiet "\"qs\", \"-c\", \"caelestia\"" "\"caelestia-shell\"";
+              #   substituteInPlace src/caelestia/subcommands/screenshot.py --replace-quiet "\"qs\", \"-c\", \"caelestia\"" "\"caelestia-shell\"";
+              # '';
 
               dependencies = deps;
             };
