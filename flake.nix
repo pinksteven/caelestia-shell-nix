@@ -54,6 +54,7 @@
                 procps
                 kdePackages.qtdeclarative
                 qs
+                jq
                 swappy
               ];
 
@@ -119,16 +120,14 @@
 
                 export PATH="${pkgs.lib.makeBinPath deps}:$PATH"
                 export FONTCONFIG_PATH="${fontconfig}:$FONTCONFIG_PATH"
-                export XDG_CONFIG_DIRS="$out/share:\$XDG_CONFIG_DIRS"
+                export QS_CONFIG_PATH=$out/share/quickshell/caelestia
 
                 shellPath="$out/share/quickshell/caelestia/shell.qml"
 
-                output=\$(${qs}/bin/qs list --all -j)
-
-                echo "$output" | jq -c --arg sp "\$shellPath" '
+                ${qs}/bin/qs list --all -j | jq -c --arg sp "\$shellPath" '
                 .[]
                 | select(.config_path | contains("caelestia"))
-                | select(.config_path != $sp)
+                | select(.config_path != \$sp)
                 | {pid: .pid, config_path: .config_path}
                 ' | while read -r line; do
                   pid=\$(echo "\$line" | jq '.pid')
@@ -137,7 +136,7 @@
                   echo "Found:    \$path"
                   echo "Expected: \$shellPath"
                   ${qs}/bin/qs kill --pid "\$pid"
-                  exec ${qs}/bin/qs -c caelestia -d
+                  exec ${qs}/bin/qs -d
                 done
 
                 exec "${qs}/bin/qs" "\$@"
