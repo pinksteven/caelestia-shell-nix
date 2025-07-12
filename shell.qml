@@ -18,5 +18,6 @@ ShellRoot {
     Drawers {}
     AreaPicker {}
     Lock {}
+
     Shortcuts {}
 }
