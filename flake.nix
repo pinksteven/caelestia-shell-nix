@@ -37,6 +37,7 @@
             let
               deps = with pkgs; [
                 app2unit
+                aubio
                 bluez
                 brightnessctl
                 cava
@@ -47,14 +48,16 @@
                 inotify-tools
                 libqalculate
                 lm_sensors
+                material-symbols
                 networkmanager
+                pipewire
                 power-profiles-daemon
                 procps
                 kdePackages.qtdeclarative
-                killall
                 qs
                 swappy
               ];
+
               fontconfig = pkgs.makeFontsConf {
                 fontDirectories = [ pkgs.material-symbols ];
               };
@@ -63,11 +66,6 @@
               pname = "caelestia-shell";
               src = ./.;
               version = "0.0.1+git.${self.shortRev or "dirty"}";
-
-              buildInputs = with pkgs; [
-                pipewire
-                aubio
-              ];
 
               nativeBuildInputs = with pkgs; [
                 gcc
@@ -113,17 +111,28 @@
               '';
 
               postFixup = ''
-                makeWrapper ${qs}/bin/qs $out/bin/caelestia-shell \
-                --unset QT_STYLE_OVERRIDE \
-                --set QT_QUICK_CONTROLS_STYLE Basic \
-                --set CAELESTIA_BD_PATH "$out/bin/beat_detector" \
-                --prefix XDG_CONFIG_DIRS : $out/share \
-                --prefix PATH : ${pkgs.lib.makeBinPath deps} \
-                --prefix FONTCONFIG_PATH : ${fontconfig}
+                cat > $out/bin/caelestia-shell << EOF
+                #!/usr/bin/env bash
 
-                if pgrep caelestia-shell >/dev/null; then
-                  killall caelestia-shell && exec $out/bin/caelestia-shell
+                unset QT_STYLE_OVERRIDE
+                export QT_QUICK_CONTROLS_STYLE=Basic
+                export CAELESTIA_BD_PATH="$out/bin/beat_detector"
+
+                export PATH="${pkgs.lib.makeBinPath deps}:$PATH"
+                export FONTCONFIG_PATH="${fontconfig}:$FONTCONFIG_PATH"
+
+                configDir="\$XDG_CONFIG_HOME/quickshell/"
+                targetDir="$out/share/quickshell/caelestia"
+
+                mkdir -p \$configDir
+                if [ "\$(readlink "\$configDir/caelestia")" != "\$targetDir" ]; then
+                  ln -sfn "\$targetDir" "\$configDir"
                 fi
+
+                exec "${pkgs.quickshell}/bin/qs" "\$@"
+                EOF
+
+                chmod +x $out/bin/caelestia-shell
               '';
             };
           default = pkgs.buildEnv {
