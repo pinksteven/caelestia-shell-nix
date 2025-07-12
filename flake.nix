@@ -102,12 +102,6 @@
               '';
 
               patchPhase = ''
-                substituteInPlace shell.qml \
-                  --replace-fail "//@ pragma Env QS_NO_RELOAD_POPUP=1" "
-                  //@ pragma Env QS_NO_RELOAD_POPUP=1
-                  //@ pragma UseQApplication
-                  "
-
                 substituteInPlace run.fish \
                   --replace-fail "(dirname (status filename))" "$out/share/quickshell/caelestia"
               '';
