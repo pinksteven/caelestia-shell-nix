@@ -54,6 +54,7 @@
                 power-profiles-daemon
                 procps
                 kdePackages.qtdeclarative
+                killall
                 qs
                 swappy
               ];
@@ -107,13 +108,17 @@
               '';
 
               postFixup = ''
-                makeWrapper ${qs}/bin/qs $out/bin/qs \
+                makeWrapper ${qs}/bin/qs $out/bin/caelestia-shell \
                 --unset QT_STYLE_OVERRIDE \
                 --set QT_QUICK_CONTROLS_STYLE Basic \
                 --set CAELESTIA_BD_PATH "$out/bin/beat_detector" \
                 --prefix XDG_CONFIG_DIRS : $out/share \
                 --prefix PATH : ${pkgs.lib.makeBinPath deps} \
                 --prefix FONTCONFIG_PATH : ${pkgs.fontconfig.out}/etc/fonts
+
+                if pgrep caelestia-shell >/dev/null; then
+                  killall caelestia-shell && exec $out/bin/caelestia-shell
+                fi
               '';
             };
           default = pkgs.buildEnv {
