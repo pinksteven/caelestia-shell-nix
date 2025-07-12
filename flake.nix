@@ -119,16 +119,28 @@
 
                 export PATH="${pkgs.lib.makeBinPath deps}:$PATH"
                 export FONTCONFIG_PATH="${fontconfig}:$FONTCONFIG_PATH"
+                export XDG_CONFIG_DIRS="$out/share:\$XDG_CONFIG_DIRS"
 
-                configDir="\$XDG_CONFIG_HOME/quickshell/"
-                targetDir="$out/share/quickshell/caelestia"
+                shellPath="$out/share/quickshell/caelestia/shell.qml"
 
-                mkdir -p \$configDir
-                if [ "\$(readlink "\$configDir/caelestia")" != "\$targetDir" ]; then
-                  ln -sfn "\$targetDir" "\$configDir"
-                fi
+                output=\$(${qs}/bin/qs list --all -j)
 
-                exec "${pkgs.quickshell}/bin/qs" "\$@"
+                echo "$output" | jq -c --arg sp "\$shellPath" '
+                .[]
+                | select(.config_path | contains("caelestia"))
+                | select(.config_path != $sp)
+                | {pid: .pid, config_path: .config_path}
+                ' | while read -r line; do
+                  pid=\$(echo "\$line" | jq '.pid')
+                  path=\$(echo "\$line" | jq -r '.config_path')
+                  echo "Killing PID \$pid due to mismatched config path:"
+                  echo "Found:    \$path"
+                  echo "Expected: \$shellPath"
+                  ${qs}/bin/qs kill --pid "\$pid"
+                  exec ${qs}/bin/qs -c caelestia -d
+                done
+
+                exec "${qs}/bin/qs" "\$@"
                 EOF
 
                 chmod +x $out/bin/caelestia-shell
