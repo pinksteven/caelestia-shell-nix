@@ -48,7 +48,6 @@
                 inotify-tools
                 libqalculate
                 lm_sensors
-                material-symbols
                 networkmanager
                 pipewire
                 power-profiles-daemon
