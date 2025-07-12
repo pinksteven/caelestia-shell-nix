@@ -37,7 +37,6 @@
             let
               deps = with pkgs; [
                 app2unit
-                aubio
                 bluez
                 brightnessctl
                 cava
@@ -48,9 +47,7 @@
                 inotify-tools
                 libqalculate
                 lm_sensors
-                material-symbols
                 networkmanager
-                pipewire
                 power-profiles-daemon
                 procps
                 kdePackages.qtdeclarative
@@ -58,11 +55,19 @@
                 qs
                 swappy
               ];
+              fontconfig = pkgs.makeFontsConf {
+                fontDirectories = [ pkgs.material-symbols ];
+              };
             in
             pkgs.stdenv.mkDerivation {
               pname = "caelestia-shell";
               src = ./.;
               version = "0.0.1+git.${self.shortRev or "dirty"}";
+
+              buildInputs = with pkgs; [
+                pipewire
+                aubio
+              ];
 
               nativeBuildInputs = with pkgs; [
                 gcc
@@ -114,7 +119,7 @@
                 --set CAELESTIA_BD_PATH "$out/bin/beat_detector" \
                 --prefix XDG_CONFIG_DIRS : $out/share \
                 --prefix PATH : ${pkgs.lib.makeBinPath deps} \
-                --prefix FONTCONFIG_PATH : ${pkgs.fontconfig.out}/etc/fonts
+                --prefix FONTCONFIG_PATH : ${fontconfig}
 
                 if pgrep caelestia-shell >/dev/null; then
                   killall caelestia-shell && exec $out/bin/caelestia-shell
