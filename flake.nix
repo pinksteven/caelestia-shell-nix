@@ -120,7 +120,6 @@
 
                 export PATH="${pkgs.lib.makeBinPath deps}:$PATH"
                 export FONTCONFIG_PATH="${fontconfig}:$FONTCONFIG_PATH"
-                export QS_CONFIG_PATH=$out/share/quickshell/caelestia
 
                 shellPath="$out/share/quickshell/caelestia/shell.qml"
 
@@ -136,10 +135,10 @@
                   echo "Found:    \$path"
                   echo "Expected: \$shellPath"
                   ${qs}/bin/qs kill --pid "\$pid"
-                  exec ${qs}/bin/qs -d
+                  ${qs}/bin/qs -p "$out/share/quickshell/caelestia" -d
                 done
 
-                exec "${qs}/bin/qs" "\$@"
+                ${qs}/bin/qs -p "$out/share/quickshell/caelestia" \$@
                 EOF
 
                 chmod +x $out/bin/caelestia-shell
