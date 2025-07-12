@@ -16,13 +16,7 @@ ShellRoot {
       sourceComponent: Background {}
     }
     Drawers {}
-    Loader {
-      active: Config.areapicker.enabled
-      sourceComponent: AreaPicker {}
-    }
-    Loader {
-      active: Config.lock.enabled
-      sourceComponent: Lock {}
-    }
+    AreaPicker {}
+    Lock {}
     Shortcuts {}
 }
